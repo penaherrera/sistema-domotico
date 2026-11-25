@@ -1,0 +1,15 @@
+options {
+    directory "/var/cache/bind";
+
+    listen-on { 127.0.0.1; 192.168.1.233; };
+    listen-on-v6 { none; };
+
+    allow-query     { localhost; 192.168.1.0/24; };
+    recursion yes;
+    allow-recursion { localhost; 192.168.1.0/24; };
+
+    // El router del proveedor altera el DNS del puerto 53 y DNSSEC
+    forwarders { 8.8.8.8; 1.1.1.1; };
+    forward only;
+    dnssec-validation no;
+};

@@ -1,0 +1,19 @@
+$TTL 86400
+@   IN  SOA ns1.domotica.lan. admin.domotica.lan. (
+        2026100701  ; Serial (AAAAMMDDNN)
+        3600        ; Refresh
+        1800        ; Retry
+        604800      ; Expire
+        86400 )     ; TTL negativo
+;
+@          IN  NS     ns1.domotica.lan.
+@          IN  A      192.168.1.233
+ns1        IN  A      192.168.1.233
+srv        IN  A      192.168.1.233
+;
+; Alias de los microservicios
+nodered    IN  CNAME  srv
+grafana    IN  CNAME  srv
+mqtt       IN  CNAME  srv
+db         IN  CNAME  srv
+dashboard  IN  CNAME  srv

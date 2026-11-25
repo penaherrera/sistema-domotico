@@ -1,0 +1,59 @@
+# /etc/nginx/sites-available/domotica  (enlazado en sites-enabled)
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+# Portal y dashboard (sitio por defecto, también responde por IP)
+server {
+    listen 80 default_server;
+    server_name dashboard.domotica.lan srv.domotica.lan 192.168.1.233;
+
+    root /srv/dashboard;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Dashboard 2.0 de Node-RED (WebSockets incluidos)
+    location /dashboard {
+        proxy_pass http://127.0.0.1:1880;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+# Node-RED (editor)
+server {
+    listen 80;
+    server_name nodered.domotica.lan;
+    location / {
+        proxy_pass http://127.0.0.1:1880;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+# Grafana
+server {
+    listen 80;
+    server_name grafana.domotica.lan;
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}

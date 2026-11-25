@@ -1,0 +1,10 @@
+# /etc/mosquitto/acl  (root:mosquitto, 640)
+# El ESP32 publica lecturas y su estado, y escucha órdenes
+user esp32
+topic write casa/sensores/#
+topic write casa/estado/#
+topic read  casa/actuadores/#
+
+# Node-RED (servidor) lee y escribe en todo el árbol casa/
+user nodered
+topic readwrite casa/#

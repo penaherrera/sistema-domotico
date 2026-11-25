@@ -1,0 +1,4 @@
+# Librerías para el Library Manager de wokwi.com
+PubSubClient
+DHT sensor library for ESPx
+ESP32Servo

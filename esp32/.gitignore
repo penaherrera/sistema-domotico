@@ -1,0 +1,4 @@
+# Credenciales y firmware compilado (el .bin contiene la clave MQTT)
+secrets.h
+*.bin
+*.elf

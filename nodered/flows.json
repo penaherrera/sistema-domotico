@@ -1,0 +1,1876 @@
+[
+  {
+    "id": "tab_sensores",
+    "type": "tab",
+    "label": "1 · Sensores y PostgreSQL",
+    "disabled": false,
+    "info": "Telemetría del ESP32 (casa/sensores/+): validación, dashboard e INSERT en la tabla lecturas."
+  },
+  {
+    "id": "tab_actuadores",
+    "type": "tab",
+    "label": "2 · Actuadores y control",
+    "disabled": false,
+    "info": "Estado real de los actuadores (casa/estado/actuadores), controles del dashboard (casa/actuadores/...) y colección estado_actuadores."
+  },
+  {
+    "id": "tab_eventos",
+    "type": "tab",
+    "label": "3 · Eventos y estado del ESP32",
+    "disabled": false,
+    "info": "Alertas y errores del ESP32 a la colección eventos de MongoDB, estado online/offline (LWT) y tabla de alertas."
+  },
+  {
+    "id": "cfg_broker",
+    "type": "mqtt-broker",
+    "name": "Mosquitto local",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "nodered-srv-domotica",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthRetain": "false",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closeRetain": "false",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willRetain": "false",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "cfg_pg",
+    "type": "postgreSQLConfig",
+    "name": "PostgreSQL domotica_db",
+    "host": "127.0.0.1",
+    "hostFieldType": "str",
+    "port": 5432,
+    "portFieldType": "num",
+    "database": "domotica_db",
+    "databaseFieldType": "str",
+    "ssl": "false",
+    "sslFieldType": "bool",
+    "applicationName": "nodered-domotica",
+    "applicationNameType": "str",
+    "max": 10,
+    "maxFieldType": "num",
+    "idle": 1000,
+    "idleFieldType": "num",
+    "connectionTimeout": 10000,
+    "connectionTimeoutFieldType": "num",
+    "user": "",
+    "userFieldType": "cred",
+    "password": "",
+    "passwordFieldType": "cred"
+  },
+  {
+    "id": "cfg_mongo",
+    "type": "mongodb",
+    "name": "MongoDB domotica_db",
+    "hostname": "127.0.0.1",
+    "topology": "direct",
+    "connectOptions": "",
+    "port": "27017",
+    "db": "domotica_db"
+  },
+  {
+    "id": "ui_base_domotica",
+    "type": "ui-base",
+    "name": "Sistema domótico IoT",
+    "path": "/dashboard",
+    "appIcon": "",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-notification",
+      "ui-control"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default",
+    "showReconnectNotification": true,
+    "notificationDisplayTime": 1,
+    "showDisconnectNotification": true,
+    "allowInstall": false
+  },
+  {
+    "id": "ui_theme_domotica",
+    "type": "ui-theme",
+    "name": "Tema domótica",
+    "colors": {
+      "surface": "#1f2937",
+      "primary": "#ea580c",
+      "bgPage": "#f3f4f6",
+      "groupBg": "#ffffff",
+      "groupOutline": "#d1d5db"
+    },
+    "sizes": {
+      "density": "default",
+      "pagePadding": "12px",
+      "groupGap": "12px",
+      "groupBorderRadius": "8px",
+      "widgetGap": "12px"
+    }
+  },
+  {
+    "id": "ui_page_inicio",
+    "type": "ui-page",
+    "name": "Inicio",
+    "ui": "ui_base_domotica",
+    "path": "/inicio",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "ui_theme_domotica",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": "0",
+        "cols": "3"
+      },
+      {
+        "name": "Tablet",
+        "px": "576",
+        "cols": "6"
+      },
+      {
+        "name": "Small Desktop",
+        "px": "768",
+        "cols": "9"
+      },
+      {
+        "name": "Desktop",
+        "px": "1024",
+        "cols": "12"
+      }
+    ],
+    "order": 1,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "ui_page_historial",
+    "type": "ui-page",
+    "name": "Historial y alertas",
+    "ui": "ui_base_domotica",
+    "path": "/historial",
+    "icon": "chart-line",
+    "layout": "grid",
+    "theme": "ui_theme_domotica",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": "0",
+        "cols": "3"
+      },
+      {
+        "name": "Tablet",
+        "px": "576",
+        "cols": "6"
+      },
+      {
+        "name": "Small Desktop",
+        "px": "768",
+        "cols": "9"
+      },
+      {
+        "name": "Desktop",
+        "px": "1024",
+        "cols": "12"
+      }
+    ],
+    "order": 2,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "ui_g_estado",
+    "type": "ui-group",
+    "name": "Estado del sistema",
+    "page": "ui_page_inicio",
+    "width": "4",
+    "height": "1",
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
+    "groupType": "default"
+  },
+  {
+    "id": "ui_g_monitoreo",
+    "type": "ui-group",
+    "name": "Monitoreo ambiental",
+    "page": "ui_page_inicio",
+    "width": "8",
+    "height": "1",
+    "order": 2,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
+    "groupType": "default"
+  },
+  {
+    "id": "ui_g_control",
+    "type": "ui-group",
+    "name": "Control de actuadores",
+    "page": "ui_page_inicio",
+    "width": "6",
+    "height": "1",
+    "order": 3,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
+    "groupType": "default"
+  },
+  {
+    "id": "ui_g_alertas",
+    "type": "ui-group",
+    "name": "Alertas recientes",
+    "page": "ui_page_inicio",
+    "width": "6",
+    "height": "1",
+    "order": 4,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
+    "groupType": "default"
+  },
+  {
+    "id": "ui_g_graficas",
+    "type": "ui-group",
+    "name": "Tendencia de la última hora",
+    "page": "ui_page_historial",
+    "width": "12",
+    "height": "1",
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
+    "groupType": "default"
+  },
+  {
+    "id": "ui_g_eventos",
+    "type": "ui-group",
+    "name": "Registro de eventos (MongoDB)",
+    "page": "ui_page_historial",
+    "width": "12",
+    "height": "1",
+    "order": 2,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
+    "groupType": "default"
+  },
+  {
+    "id": "c1",
+    "type": "comment",
+    "z": "tab_sensores",
+    "name": "Telemetría ESP32 → validación → dashboard + PostgreSQL",
+    "info": "Cada 5 s el ESP32 publica casa/sensores/{temperatura,humedad,gas,agua,puerta}.\nSe valida el rango en el servidor (segunda barrera además de la del ESP32) antes de guardar.",
+    "x": 230,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "s_in",
+    "type": "mqtt in",
+    "z": "tab_sensores",
+    "name": "Sensores",
+    "topic": "casa/sensores/+",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "cfg_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 140,
+    "wires": [
+      [
+        "s_val"
+      ]
+    ]
+  },
+  {
+    "id": "s_val",
+    "type": "function",
+    "z": "tab_sensores",
+    "name": "Validar rango",
+    "func": "// Validación en el servidor: tipo numérico y rango físico del sensor\nconst variable = msg.topic.split('/').pop();\nconst META = {\n    temperatura: { sensor: 'DHT11',  unidad: '°C',     min: 0, max: 50,   serie: 'Temperatura (°C)' },\n    humedad:     { sensor: 'DHT11',  unidad: '%',      min: 0, max: 100,  serie: 'Humedad (%)' },\n    gas:         { sensor: 'MQ2',    unidad: 'indice', min: 0, max: 1000, serie: 'Gas MQ-2' },\n    agua:        { sensor: 'KS0048', unidad: '%',      min: 0, max: 100,  serie: 'Agua (%)' },\n    puerta:      { sensor: 'KS0038', unidad: 'estado', min: 0, max: 1,    serie: 'Puerta' }\n};\nconst m = META[variable];\nconst valor = Number(msg.payload);\n\nif (!m || typeof msg.payload === 'object' || !Number.isFinite(valor) ||\n    valor < m.min || valor > m.max) {\n    node.status({ fill: 'red', shape: 'dot', text: `descartado ${variable}=${msg.payload}` });\n    return [null, { payload: { tipo: 'lectura_invalida', origen: 'nodered', topico: msg.topic,\n                               sensor: m ? m.sensor : variable, valor: String(msg.payload),\n                               detalle: `${variable} fuera de rango: ${msg.payload}`, fecha: new Date() } }];\n}\n\nmsg.variable = variable;\nmsg.sensor = m.sensor;\nmsg.unidad = m.unidad;\nmsg.serie = m.serie;\nmsg.payload = Math.round(valor * 100) / 100;\nnode.status({ fill: 'green', shape: 'dot', text: `${variable} = ${msg.payload}` });\nreturn [msg, null];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 140,
+    "wires": [
+      [
+        "s_sw",
+        "s_sql",
+        "s_hora",
+        "s_wd"
+      ],
+      [
+        "s_inv",
+        "s_inv_mongo"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "s_sw",
+    "type": "switch",
+    "z": "tab_sensores",
+    "name": "Por variable",
+    "property": "variable",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "temperatura",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "humedad",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "gas",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "agua",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "puerta",
+        "vt": "str"
+      }
+    ],
+    "checkall": "false",
+    "repair": false,
+    "outputs": 5,
+    "x": 560,
+    "y": 140,
+    "wires": [
+      [
+        "g_temp",
+        "ch_th"
+      ],
+      [
+        "g_hum",
+        "ch_th"
+      ],
+      [
+        "g_gas",
+        "ch_gas"
+      ],
+      [
+        "g_agua",
+        "ch_agua"
+      ],
+      [
+        "s_puerta_fmt"
+      ]
+    ]
+  },
+  {
+    "id": "g_temp",
+    "type": "ui-gauge",
+    "z": "tab_sensores",
+    "name": "Temperatura",
+    "group": "ui_g_monitoreo",
+    "order": 1,
+    "value": "payload",
+    "valueType": "msg",
+    "width": "4",
+    "height": "4",
+    "gtype": "gauge-34",
+    "gstyle": "needle",
+    "title": "Temperatura",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "°C",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": "0",
+        "color": "#3b82f6"
+      },
+      {
+        "from": "18",
+        "color": "#22c55e"
+      },
+      {
+        "from": "28",
+        "color": "#f59e0b"
+      },
+      {
+        "from": "30",
+        "color": "#ef4444"
+      }
+    ],
+    "min": 0,
+    "max": 50,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 820,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "g_hum",
+    "type": "ui-gauge",
+    "z": "tab_sensores",
+    "name": "Humedad",
+    "group": "ui_g_monitoreo",
+    "order": 2,
+    "value": "payload",
+    "valueType": "msg",
+    "width": "4",
+    "height": "4",
+    "gtype": "gauge-34",
+    "gstyle": "needle",
+    "title": "Humedad",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "%",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": "0",
+        "color": "#22c55e"
+      },
+      {
+        "from": "60",
+        "color": "#f59e0b"
+      },
+      {
+        "from": "80",
+        "color": "#ef4444"
+      }
+    ],
+    "min": 0,
+    "max": 100,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 820,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "g_gas",
+    "type": "ui-gauge",
+    "z": "tab_sensores",
+    "name": "Gas MQ-2",
+    "group": "ui_g_monitoreo",
+    "order": 3,
+    "value": "payload",
+    "valueType": "msg",
+    "width": "4",
+    "height": "4",
+    "gtype": "gauge-34",
+    "gstyle": "needle",
+    "title": "Gas MQ-2",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "índice",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": "0",
+        "color": "#22c55e"
+      },
+      {
+        "from": "900",
+        "color": "#f59e0b"
+      },
+      {
+        "from": "945",
+        "color": "#ef4444"
+      }
+    ],
+    "min": 0,
+    "max": 1000,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 820,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "g_agua",
+    "type": "ui-gauge",
+    "z": "tab_sensores",
+    "name": "Agua (fuga)",
+    "group": "ui_g_monitoreo",
+    "order": 4,
+    "value": "payload",
+    "valueType": "msg",
+    "width": "4",
+    "height": "4",
+    "gtype": "gauge-34",
+    "gstyle": "needle",
+    "title": "Agua (fuga)",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "%",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": "0",
+        "color": "#22c55e"
+      },
+      {
+        "from": "15",
+        "color": "#f59e0b"
+      },
+      {
+        "from": "30",
+        "color": "#ef4444"
+      }
+    ],
+    "min": 0,
+    "max": 100,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 820,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "ch_th",
+    "type": "ui-chart",
+    "z": "tab_sensores",
+    "group": "ui_g_graficas",
+    "name": "Temperatura y humedad",
+    "label": "Temperatura y humedad",
+    "order": 1,
+    "chartType": "line",
+    "category": "serie",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": "",
+    "xAxisPropertyType": "timestamp",
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "xmin": "",
+    "xmax": "",
+    "yAxisLabel": "°C / %",
+    "yAxisProperty": "payload",
+    "yAxisPropertyType": "msg",
+    "ymin": "0",
+    "ymax": "100",
+    "bins": 10,
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "false",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": "1",
+    "removeOlderUnit": "3600",
+    "removeOlderPoints": "",
+    "colors": [
+      "#ea580c",
+      "#0095ff"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": "4",
+    "height": "5",
+    "className": "",
+    "interpolation": "linear",
+    "x": 1060,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ch_gas",
+    "type": "ui-chart",
+    "z": "tab_sensores",
+    "group": "ui_g_graficas",
+    "name": "Gas MQ-2",
+    "label": "Gas MQ-2",
+    "order": 2,
+    "chartType": "line",
+    "category": "serie",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": "",
+    "xAxisPropertyType": "timestamp",
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "xmin": "",
+    "xmax": "",
+    "yAxisLabel": "índice",
+    "yAxisProperty": "payload",
+    "yAxisPropertyType": "msg",
+    "ymin": "0",
+    "ymax": "1000",
+    "bins": 10,
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "false",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": "1",
+    "removeOlderUnit": "3600",
+    "removeOlderPoints": "",
+    "colors": [
+      "#a855f7"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": "4",
+    "height": "5",
+    "className": "",
+    "interpolation": "linear",
+    "x": 1060,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ch_agua",
+    "type": "ui-chart",
+    "z": "tab_sensores",
+    "group": "ui_g_graficas",
+    "name": "Nivel de agua",
+    "label": "Nivel de agua",
+    "order": 3,
+    "chartType": "line",
+    "category": "serie",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": "",
+    "xAxisPropertyType": "timestamp",
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "xmin": "",
+    "xmax": "",
+    "yAxisLabel": "%",
+    "yAxisProperty": "payload",
+    "yAxisPropertyType": "msg",
+    "ymin": "0",
+    "ymax": "100",
+    "bins": 10,
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "false",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": "1",
+    "removeOlderUnit": "3600",
+    "removeOlderPoints": "",
+    "colors": [
+      "#0ea5e9"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": "4",
+    "height": "5",
+    "className": "",
+    "interpolation": "linear",
+    "x": 1060,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "s_puerta_fmt",
+    "type": "function",
+    "z": "tab_sensores",
+    "name": "Texto puerta",
+    "func": "msg.payload = msg.payload === 1 ? '🔓 Abierta' : '🔒 Cerrada';\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 830,
+    "y": 230,
+    "wires": [
+      [
+        "t_puerta"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "t_puerta",
+    "type": "ui-text",
+    "z": "tab_sensores",
+    "group": "ui_g_estado",
+    "order": 2,
+    "width": "0",
+    "height": "0",
+    "name": "",
+    "label": "Puerta (KS0038)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 1050,
+    "y": 230,
+    "wires": []
+  },
+  {
+    "id": "s_sql",
+    "type": "function",
+    "z": "tab_sensores",
+    "name": "Parámetros INSERT",
+    "func": "// Parámetros del INSERT (consulta parametrizada: evita inyección SQL)\nmsg.params = [msg.sensor, msg.variable, msg.payload, msg.unidad];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 570,
+    "y": 300,
+    "wires": [
+      [
+        "s_pg"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "s_pg",
+    "type": "postgresql",
+    "z": "tab_sensores",
+    "name": "INSERT lecturas",
+    "query": "INSERT INTO lecturas (sensor, variable, valor, unidad)\nVALUES ($1, $2, $3, $4);",
+    "postgreSQLConfig": "cfg_pg",
+    "split": false,
+    "rowsPerMsg": 1,
+    "outputs": 1,
+    "x": 790,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "s_hora",
+    "type": "function",
+    "z": "tab_sensores",
+    "name": "Hora de la lectura",
+    "func": "msg.payload = new Date().toLocaleTimeString('es-SV', { timeZone: 'America/El_Salvador', hour12: false });\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 570,
+    "y": 360,
+    "wires": [
+      [
+        "t_ultima"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "t_ultima",
+    "type": "ui-text",
+    "z": "tab_sensores",
+    "group": "ui_g_estado",
+    "order": 5,
+    "width": "0",
+    "height": "0",
+    "name": "",
+    "label": "Última lectura",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 1050,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "s_wd",
+    "type": "trigger",
+    "z": "tab_sensores",
+    "name": "Vigilancia 20 s",
+    "op1": "",
+    "op2": "⚠️ Sin datos hace 20 s",
+    "op1type": "nul",
+    "op2type": "str",
+    "duration": "20",
+    "extend": true,
+    "overrideDelay": false,
+    "units": "s",
+    "reset": "",
+    "bytopic": "all",
+    "topic": "topic",
+    "outputs": 1,
+    "x": 580,
+    "y": 420,
+    "wires": [
+      [
+        "t_ultima"
+      ]
+    ]
+  },
+  {
+    "id": "s_inv",
+    "type": "debug",
+    "z": "tab_sensores",
+    "name": "Lecturas descartadas",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 580,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "s_inv_mongo",
+    "type": "mongodb out",
+    "z": "tab_sensores",
+    "mongodb": "cfg_mongo",
+    "name": "eventos (lectura inválida)",
+    "collection": "eventos",
+    "payonly": true,
+    "upsert": false,
+    "multi": false,
+    "operation": "insert",
+    "x": 600,
+    "y": 530,
+    "wires": []
+  },
+  {
+    "id": "s_catch",
+    "type": "catch",
+    "z": "tab_sensores",
+    "name": "Errores del flujo",
+    "scope": null,
+    "uncaught": false,
+    "x": 140,
+    "y": 600,
+    "wires": [
+      [
+        "s_catch_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "s_catch_dbg",
+    "type": "debug",
+    "z": "tab_sensores",
+    "name": "Error (PostgreSQL / función)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 360,
+    "y": 600,
+    "wires": []
+  },
+  {
+    "id": "c2",
+    "type": "comment",
+    "z": "tab_actuadores",
+    "name": "Estado real del ESP32 → dashboard + estado_actuadores (MongoDB)",
+    "info": "casa/estado/actuadores es retenido: al conectar, Node-RED recibe el último estado.\nLos interruptores usan 'decouple': muestran el estado que reporta el ESP32, no el clic.",
+    "x": 260,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "a_in",
+    "type": "mqtt in",
+    "z": "tab_actuadores",
+    "name": "Estado actuadores",
+    "topic": "casa/estado/actuadores",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "cfg_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "a_split",
+        "a_mongo_prep"
+      ]
+    ]
+  },
+  {
+    "id": "a_split",
+    "type": "function",
+    "z": "tab_actuadores",
+    "name": "Repartir estado",
+    "func": "// Reparte el JSON del ESP32 a cada control del dashboard\nconst e = msg.payload;\nif (typeof e !== 'object' || e === null) { node.warn('estado no válido'); return null; }\nconst manual = e.modo === 'manual';\n// En modo auto el ESP32 ignora las órdenes: se deshabilitan los controles\nconst ctl = (v) => ({ payload: v, enabled: manual });\nnode.status({ fill: manual ? 'yellow' : 'green', shape: 'dot', text: `modo ${e.modo}, seguridad ${e.seguridad}` });\nreturn [\n    ctl(e.rele), ctl(e.buzzer), ctl(e.ventilador), ctl(Number(e.servo)),\n    { payload: e.modo },\n    { payload: e.seguridad },\n    { payload: manual ? '✋ Manual (órdenes del dashboard)' : '🤖 Automático (reglas del ESP32)' },\n    { payload: e.seguridad === 'on' ? '🛡️ Activado' : 'Desactivado' }\n];\n",
+    "outputs": 8,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 120,
+    "wires": [
+      [
+        "sw_rele"
+      ],
+      [
+        "sw_buzzer"
+      ],
+      [
+        "sw_vent"
+      ],
+      [
+        "sl_servo"
+      ],
+      [
+        "sw_modo"
+      ],
+      [
+        "sw_seg"
+      ],
+      [
+        "t_modo"
+      ],
+      [
+        "t_seg"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "sw_modo",
+    "type": "ui-switch",
+    "z": "tab_actuadores",
+    "name": "Modo manual",
+    "label": "Modo manual",
+    "group": "ui_g_control",
+    "order": 1,
+    "width": "0",
+    "height": "0",
+    "passthru": false,
+    "decouple": "true",
+    "topic": "casa/actuadores/modo",
+    "topicType": "str",
+    "style": "",
+    "className": "",
+    "layout": "row-spread",
+    "clickableArea": "switch",
+    "onvalue": "manual",
+    "onvalueType": "str",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "auto",
+    "offvalueType": "str",
+    "officon": "",
+    "offcolor": "",
+    "x": 660,
+    "y": 60,
+    "wires": [
+      [
+        "a_orden"
+      ]
+    ]
+  },
+  {
+    "id": "sw_seg",
+    "type": "ui-switch",
+    "z": "tab_actuadores",
+    "name": "Modo seguridad",
+    "label": "Modo seguridad",
+    "group": "ui_g_control",
+    "order": 2,
+    "width": "0",
+    "height": "0",
+    "passthru": false,
+    "decouple": "true",
+    "topic": "casa/actuadores/seguridad",
+    "topicType": "str",
+    "style": "",
+    "className": "",
+    "layout": "row-spread",
+    "clickableArea": "switch",
+    "onvalue": "on",
+    "onvalueType": "str",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "off",
+    "offvalueType": "str",
+    "officon": "",
+    "offcolor": "",
+    "x": 660,
+    "y": 100,
+    "wires": [
+      [
+        "a_orden"
+      ]
+    ]
+  },
+  {
+    "id": "sw_rele",
+    "type": "ui-switch",
+    "z": "tab_actuadores",
+    "name": "Relé (foco 110 V)",
+    "label": "Relé (foco 110 V)",
+    "group": "ui_g_control",
+    "order": 3,
+    "width": "0",
+    "height": "0",
+    "passthru": false,
+    "decouple": "true",
+    "topic": "casa/actuadores/rele",
+    "topicType": "str",
+    "style": "",
+    "className": "",
+    "layout": "row-spread",
+    "clickableArea": "switch",
+    "onvalue": "on",
+    "onvalueType": "str",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "off",
+    "offvalueType": "str",
+    "officon": "",
+    "offcolor": "",
+    "x": 660,
+    "y": 140,
+    "wires": [
+      [
+        "a_orden"
+      ]
+    ]
+  },
+  {
+    "id": "sw_buzzer",
+    "type": "ui-switch",
+    "z": "tab_actuadores",
+    "name": "Buzzer",
+    "label": "Buzzer",
+    "group": "ui_g_control",
+    "order": 4,
+    "width": "0",
+    "height": "0",
+    "passthru": false,
+    "decouple": "true",
+    "topic": "casa/actuadores/buzzer",
+    "topicType": "str",
+    "style": "",
+    "className": "",
+    "layout": "row-spread",
+    "clickableArea": "switch",
+    "onvalue": "on",
+    "onvalueType": "str",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "off",
+    "offvalueType": "str",
+    "officon": "",
+    "offcolor": "",
+    "x": 660,
+    "y": 180,
+    "wires": [
+      [
+        "a_orden"
+      ]
+    ]
+  },
+  {
+    "id": "sw_vent",
+    "type": "ui-switch",
+    "z": "tab_actuadores",
+    "name": "Ventilador",
+    "label": "Ventilador",
+    "group": "ui_g_control",
+    "order": 5,
+    "width": "0",
+    "height": "0",
+    "passthru": false,
+    "decouple": "true",
+    "topic": "casa/actuadores/ventilador",
+    "topicType": "str",
+    "style": "",
+    "className": "",
+    "layout": "row-spread",
+    "clickableArea": "switch",
+    "onvalue": "on",
+    "onvalueType": "str",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "off",
+    "offvalueType": "str",
+    "officon": "",
+    "offcolor": "",
+    "x": 660,
+    "y": 220,
+    "wires": [
+      [
+        "a_orden"
+      ]
+    ]
+  },
+  {
+    "id": "sl_servo",
+    "type": "ui-slider",
+    "z": "tab_actuadores",
+    "name": "Servo (válvula)",
+    "label": "Servo válvula (°)",
+    "tooltip": "",
+    "group": "ui_g_control",
+    "order": 6,
+    "width": "0",
+    "height": "0",
+    "passthru": false,
+    "outs": "end",
+    "topic": "casa/actuadores/servo",
+    "topicType": "str",
+    "thumbLabel": "always",
+    "showTicks": "always",
+    "min": 0,
+    "max": 180,
+    "step": 10,
+    "className": "",
+    "iconPrepend": "valve",
+    "iconAppend": "",
+    "color": "",
+    "colorTrack": "",
+    "colorThumb": "",
+    "showTextField": true,
+    "x": 660,
+    "y": 260,
+    "wires": [
+      [
+        "a_orden"
+      ]
+    ]
+  },
+  {
+    "id": "t_modo",
+    "type": "ui-text",
+    "z": "tab_actuadores",
+    "group": "ui_g_estado",
+    "order": 3,
+    "width": "0",
+    "height": "0",
+    "name": "",
+    "label": "Modo",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 640,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "t_seg",
+    "type": "ui-text",
+    "z": "tab_actuadores",
+    "group": "ui_g_estado",
+    "order": 4,
+    "width": "0",
+    "height": "0",
+    "name": "",
+    "label": "Seguridad",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 640,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "t_nota",
+    "type": "ui-text",
+    "z": "tab_actuadores",
+    "group": "ui_g_control",
+    "order": 7,
+    "width": "0",
+    "height": "0",
+    "name": "Nota modo",
+    "label": "",
+    "format": "En modo automático los controles se bloquean; las alarmas de gas y agua actúan siempre.",
+    "layout": "row-left",
+    "style": true,
+    "font": "",
+    "fontSize": "12",
+    "color": "#6b7280",
+    "wrapText": true,
+    "className": "",
+    "value": "",
+    "valueType": "str",
+    "x": 660,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "a_orden",
+    "type": "function",
+    "z": "tab_actuadores",
+    "name": "Orden + auditoría",
+    "func": "// Orden del dashboard → ESP32 (QoS 1, sin retener)\nconst v = String(msg.payload);\nmsg.payload = v;\nconst evento = {\n    tipo: 'orden_dashboard',\n    origen: 'dashboard',\n    actuador: msg.topic.split('/').pop(),\n    valor: v,\n    usuario: (msg._client && msg._client.user && msg._client.user.username) || 'dashboard',\n    fecha: new Date()\n};\nnode.status({ fill: 'blue', shape: 'dot', text: `${evento.actuador} = ${v}` });\nreturn [msg, { payload: evento }];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 920,
+    "y": 160,
+    "wires": [
+      [
+        "a_out"
+      ],
+      [
+        "a_orden_mongo"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "a_out",
+    "type": "mqtt out",
+    "z": "tab_actuadores",
+    "name": "Órdenes al ESP32",
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "cfg_broker",
+    "x": 1140,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "a_orden_mongo",
+    "type": "mongodb out",
+    "z": "tab_actuadores",
+    "mongodb": "cfg_mongo",
+    "name": "eventos (orden)",
+    "collection": "eventos",
+    "payonly": true,
+    "upsert": false,
+    "multi": false,
+    "operation": "insert",
+    "x": 1150,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "a_mongo_prep",
+    "type": "function",
+    "z": "tab_actuadores",
+    "name": "Documentos estado",
+    "func": "// Solo actualiza MongoDB cuando el estado cambia\nconst e = msg.payload;\nif (typeof e !== 'object' || e === null) return null;\nconst clave = JSON.stringify(e);\nif (context.get('ultimo') === clave) return null;\ncontext.set('ultimo', clave);\nconst ahora = new Date();\nconst est = (v) => v === 'on' ? 'encendido' : 'apagado';\nconst doc = (id, set) => ({ query: { _id: id }, payload: { $set: Object.assign(set, { modo: e.modo, actualizado: ahora }) } });\nreturn [[\n    doc('rele',       { estado: est(e.rele) }),\n    doc('buzzer',     { estado: est(e.buzzer) }),\n    doc('ventilador', { estado: est(e.ventilador) }),\n    doc('servo',      { angulo: Number(e.servo) }),\n    doc('sistema',    { seguridad: e.seguridad === 'on' })\n]];\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 440,
+    "wires": [
+      [
+        "a_mongo"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "a_mongo",
+    "type": "mongodb out",
+    "z": "tab_actuadores",
+    "mongodb": "cfg_mongo",
+    "name": "estado_actuadores (upsert)",
+    "collection": "estado_actuadores",
+    "payonly": true,
+    "upsert": true,
+    "multi": false,
+    "operation": "update",
+    "x": 640,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "a_catch",
+    "type": "catch",
+    "z": "tab_actuadores",
+    "name": "Errores del flujo",
+    "scope": null,
+    "uncaught": false,
+    "x": 150,
+    "y": 520,
+    "wires": [
+      [
+        "a_catch_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "a_catch_dbg",
+    "type": "debug",
+    "z": "tab_actuadores",
+    "name": "Error (MongoDB / MQTT)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 380,
+    "y": 520,
+    "wires": []
+  },
+  {
+    "id": "c3",
+    "type": "comment",
+    "z": "tab_eventos",
+    "name": "Alertas, errores y LWT del ESP32 → MongoDB + dashboard",
+    "info": "",
+    "x": 240,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "e_in",
+    "type": "mqtt in",
+    "z": "tab_eventos",
+    "name": "Eventos ESP32",
+    "topic": "casa/estado/eventos",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "cfg_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 120,
+    "wires": [
+      [
+        "e_prep"
+      ]
+    ]
+  },
+  {
+    "id": "e_err",
+    "type": "mqtt in",
+    "z": "tab_eventos",
+    "name": "Errores ESP32",
+    "topic": "casa/estado/errores",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "cfg_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 200,
+    "wires": [
+      [
+        "e_err_prep"
+      ]
+    ]
+  },
+  {
+    "id": "e_lwt",
+    "type": "mqtt in",
+    "z": "tab_eventos",
+    "name": "Estado ESP32 (LWT)",
+    "topic": "casa/estado/esp32",
+    "qos": "1",
+    "datatype": "utf8",
+    "broker": "cfg_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 300,
+    "wires": [
+      [
+        "e_lwt_prep"
+      ]
+    ]
+  },
+  {
+    "id": "e_prep",
+    "type": "function",
+    "z": "tab_eventos",
+    "name": "Preparar alerta",
+    "func": "// Alerta del ESP32 (mismo formato de la colección eventos) + fecha del servidor\nconst ev = (typeof msg.payload === 'object' && msg.payload) ? msg.payload : { tipo: 'desconocido', crudo: String(msg.payload) };\nev.origen = 'esp32';\nev.fecha = new Date();\nconst TXT = { alerta_gas: '🔥 Gas sobre el umbral', fuga_agua: '💧 Fuga de agua', puerta_abierta: '🚨 Intrusión: puerta abierta con seguridad' };\nconst aviso = `${TXT[ev.tipo] || ev.tipo} (${ev.sensor || ''}: ${ev.valor ?? ''})`;\nreturn [{ payload: ev }, { payload: aviso, topic: 'Alerta' }, { payload: ev }, { payload: aviso }];\n",
+    "outputs": 4,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 360,
+    "y": 120,
+    "wires": [
+      [
+        "e_mongo"
+      ],
+      [
+        "e_notif"
+      ],
+      [
+        "e_tabla_fmt"
+      ],
+      [
+        "t_alerta"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "e_err_prep",
+    "type": "function",
+    "z": "tab_eventos",
+    "name": "Preparar error",
+    "func": "const p = (typeof msg.payload === 'object' && msg.payload) ? msg.payload : { error: String(msg.payload) };\nconst ev = { tipo: 'error_esp32', origen: 'esp32', sensor: p.sensor || '', detalle: p.error || '', fecha: new Date() };\nreturn [{ payload: ev }, { payload: ev }];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 360,
+    "y": 200,
+    "wires": [
+      [
+        "e_mongo"
+      ],
+      [
+        "e_tabla_fmt"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "e_lwt_prep",
+    "type": "function",
+    "z": "tab_eventos",
+    "name": "Estado en línea",
+    "func": "// online/offline retenido; el broker publica 'offline' (LWT) si el ESP32 se cae\nconst online = msg.payload === 'online';\nconst prev = context.get('prev');\ncontext.set('prev', msg.payload);\nnode.status({ fill: online ? 'green' : 'red', shape: 'dot', text: msg.payload });\nconst texto = { payload: online ? '🟢 En línea' : '🔴 Desconectado' };\nif (prev === msg.payload) return [texto, null, null, null];\nconst ev = { tipo: online ? 'esp32_online' : 'esp32_offline', origen: 'broker', fecha: new Date() };\nconst aviso = online ? null : { payload: 'El ESP32 se desconectó (LWT recibido)', topic: 'ESP32' };\nreturn [texto, aviso, { payload: ev }, { payload: ev }];\n",
+    "outputs": 4,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 300,
+    "wires": [
+      [
+        "t_esp32"
+      ],
+      [
+        "e_notif"
+      ],
+      [
+        "e_mongo"
+      ],
+      [
+        "e_tabla_fmt"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "t_esp32",
+    "type": "ui-text",
+    "z": "tab_eventos",
+    "group": "ui_g_estado",
+    "order": 1,
+    "width": "0",
+    "height": "0",
+    "name": "",
+    "label": "ESP32",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 640,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "t_alerta",
+    "type": "ui-text",
+    "z": "tab_eventos",
+    "group": "ui_g_estado",
+    "order": 6,
+    "width": "0",
+    "height": "0",
+    "name": "",
+    "label": "Última alerta",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 640,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "e_mongo",
+    "type": "mongodb out",
+    "z": "tab_eventos",
+    "mongodb": "cfg_mongo",
+    "name": "eventos (insert)",
+    "collection": "eventos",
+    "payonly": true,
+    "upsert": false,
+    "multi": false,
+    "operation": "insert",
+    "x": 650,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "e_notif",
+    "type": "ui-notification",
+    "z": "tab_eventos",
+    "ui": "ui_base_domotica",
+    "position": "top right",
+    "colorDefault": false,
+    "color": "#dc2626",
+    "displayTime": "6",
+    "showCountdown": true,
+    "outputs": 0,
+    "allowDismiss": true,
+    "dismissText": "Cerrar",
+    "allowConfirm": false,
+    "confirmText": "Confirmar",
+    "raw": false,
+    "className": "",
+    "name": "Aviso emergente",
+    "x": 650,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "e_tabla_fmt",
+    "type": "function",
+    "z": "tab_eventos",
+    "name": "Filas de la tabla",
+    "func": "// Mantiene las últimas 15 filas para las tablas del dashboard\nconst e = msg.payload;\nconst f = e.fecha instanceof Date ? e.fecha : new Date(e.fecha);\nlet detalle = '';\nif (e.valor !== undefined) detalle = `valor ${e.valor}` + (e.umbral !== undefined ? ` / umbral ${e.umbral}` : '');\nif (e.detalle) detalle = e.detalle;\nif (e.actuador) detalle = `${e.actuador} = ${e.valor}`;\nconst fila = {\n    Hora: f.toLocaleString('es-SV', { timeZone: 'America/El_Salvador', hour12: false,\n                                      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }),\n    Tipo: e.tipo, Sensor: e.sensor || e.actuador || '-', Detalle: detalle || '-'\n};\nlet filas = flow.get('filas') || [];\nif (msg.reemplazar) filas = [];\nfilas.unshift(fila);\nfilas = filas.slice(0, 15);\nflow.set('filas', filas);\nreturn [{ payload: filas.slice(0, 6) }, { payload: filas }];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 660,
+    "y": 380,
+    "wires": [
+      [
+        "tb_alertas"
+      ],
+      [
+        "tb_eventos"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "tb_alertas",
+    "type": "ui-table",
+    "z": "tab_eventos",
+    "group": "ui_g_alertas",
+    "name": "",
+    "label": "",
+    "order": 1,
+    "width": "0",
+    "height": "0",
+    "maxrows": 6,
+    "passthru": false,
+    "autocols": true,
+    "showSearch": false,
+    "deselect": true,
+    "selectionType": "none",
+    "columns": [],
+    "mobileBreakpoint": "sm",
+    "mobileBreakpointType": "defaults",
+    "action": "replace",
+    "className": "",
+    "x": 880,
+    "y": 360,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "tb_eventos",
+    "type": "ui-table",
+    "z": "tab_eventos",
+    "group": "ui_g_eventos",
+    "name": "",
+    "label": "",
+    "order": 1,
+    "width": "0",
+    "height": "0",
+    "maxrows": 15,
+    "passthru": false,
+    "autocols": true,
+    "showSearch": true,
+    "deselect": true,
+    "selectionType": "none",
+    "columns": [],
+    "mobileBreakpoint": "sm",
+    "mobileBreakpointType": "defaults",
+    "action": "replace",
+    "className": "",
+    "x": 880,
+    "y": 400,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "e_ini",
+    "type": "inject",
+    "z": "tab_eventos",
+    "name": "Al iniciar",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "3",
+    "topic": "",
+    "x": 150,
+    "y": 460,
+    "wires": [
+      [
+        "e_ini_q"
+      ]
+    ]
+  },
+  {
+    "id": "e_ini_q",
+    "type": "function",
+    "z": "tab_eventos",
+    "name": "Consulta últimos 15",
+    "func": "msg.payload = {};\nmsg.sort = { fecha: -1 };\nmsg.limit = 15;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 350,
+    "y": 460,
+    "wires": [
+      [
+        "e_find"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "e_find",
+    "type": "mongodb in",
+    "z": "tab_eventos",
+    "mongodb": "cfg_mongo",
+    "name": "find eventos",
+    "collection": "eventos",
+    "operation": "find",
+    "x": 550,
+    "y": 460,
+    "wires": [
+      [
+        "e_ini_split"
+      ]
+    ]
+  },
+  {
+    "id": "e_ini_split",
+    "type": "function",
+    "z": "tab_eventos",
+    "name": "Uno por uno (antiguo→nuevo)",
+    "func": "const docs = Array.isArray(msg.payload) ? msg.payload.slice().reverse() : [];\nreturn [docs.map((d, i) => ({ payload: d, reemplazar: i === 0 }))];",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 740,
+    "y": 460,
+    "wires": [
+      [
+        "e_tabla_fmt"
+      ]
+    ],
+    "info": ""
+  },
+  {
+    "id": "e_catch",
+    "type": "catch",
+    "z": "tab_eventos",
+    "name": "Errores del flujo",
+    "scope": null,
+    "uncaught": false,
+    "x": 140,
+    "y": 540,
+    "wires": [
+      [
+        "e_catch_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "e_catch_dbg",
+    "type": "debug",
+    "z": "tab_eventos",
+    "name": "Error (MongoDB)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 360,
+    "y": 540,
+    "wires": []
+  }
+]

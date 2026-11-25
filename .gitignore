@@ -1,0 +1,27 @@
+# ---- Credenciales: NUNCA se suben ----
+secrets.h
+*.env
+.env*
+flows_cred.json
+*credenciales*
+*contrasenas*
+passwd
+*.pem
+*.key
+
+# ---- Firmware compilado (lleva la clave MQTT dentro) ----
+*.bin
+*.elf
+
+# ---- Respaldos y volcados de bases de datos ----
+*.sql.gz
+*.archive
+*.dump
+respaldo*/
+
+# ---- Sistema / editores ----
+.DS_Store
+Thumbs.db
+.vscode/
+node_modules/
+*.log
